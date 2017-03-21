@@ -36,7 +36,7 @@ def normalize_data(xyz):
     z += k.max()
 
 ######################################################################
-    
+
 def gradient(U):
 
     '''Prety rainbow colors for display'''
@@ -54,7 +54,7 @@ def gradient(U):
 
     stops = numpy.arange(colors.shape[0], dtype=T)/(colors.shape[0]-1)
 
-    rgbs = [ numpy.interp(U, stops, colors[:,i]).reshape(-1,1) 
+    rgbs = [ numpy.interp(U, stops, colors[:,i]).reshape(-1,1)
              for i in range(3) ]
 
     return numpy.hstack( rgbs )
@@ -71,7 +71,7 @@ class PointCloudAppOpenCV:
         if ( len(xyz.shape) != 2 or xyz.shape[1] != 3 ):
             raise Exception('xyz must be an n-by-3 array')
 
-        
+
         # Store points
         self.npoints = xyz.shape[0]
 
@@ -117,13 +117,13 @@ class PointCloudAppOpenCV:
         # Set up X/Y rotations and mouse state
         self.rot = numpy.array([0,0], dtype='float32')
         self.lastMouse = None
-        
+
         self.big_points = False
-        
+
         self.dragging = False
         self.need_redisplay = True
         self.mouse_point = None
-        
+
         self.win = 'Point cloud'
         cv2.namedWindow(self.win)
 
@@ -173,7 +173,7 @@ class PointCloudAppOpenCV:
 
         cv2.setMouseCallback(self.win, lambda e,x,y,f,p: None, None)
 
-                    
+
     def getModelview(self):
 
         ry, rx = tuple(self.rot*numpy.pi/180)
@@ -193,8 +193,8 @@ class PointCloudAppOpenCV:
                             [   0, 1,   0, 0 ],
                             [  sy, 0,  cy, 0 ],
                             [   0, 0,   0, 1 ] ], dtype='float32' )
-        
-        M = numpy.array( [ 
+
+        M = numpy.array( [
             [ 1.0,  0.0,  0.0, 0.0 ],
             [ 0.0, -1.0,  0.0, 0.0 ],
             [ 0.0,  0.0, -1.0, 0.0 ],
@@ -234,7 +234,7 @@ class PointCloudAppOpenCV:
         u = ( (f * -x/z) + w/2 + 0.5).astype(int)
         v = ( (f * y/z) + h/2 + 0.5).astype(int)
         color_idx = numpy.arange( 0, len(u) )
-        
+
         # Add neighbors
         if self.big_points:
             u = numpy.hstack( (u+0, u+1, u+0, u+1) )
@@ -260,11 +260,11 @@ class PointCloudAppOpenCV:
 
         cv2.imshow(self.win, display.reshape((h,w,3)))
 
-        
+
 
 ######################################################################
 
-    
+
 
 class PointCloudAppOpenGL:
 
@@ -312,7 +312,7 @@ class PointCloudAppOpenGL:
         # Set up GLUT
         glut.glutInit()
         glut.glutInitWindowSize(640, 480)
-        glut.glutInitDisplayMode( glut.GLUT_DOUBLE | glut.GLUT_RGB | 
+        glut.glutInitDisplayMode( glut.GLUT_DOUBLE | glut.GLUT_RGB |
                                   glut.GLUT_DEPTH | glut.GLUT_MULTISAMPLE )
         glut.glutCreateWindow('Point cloud viewer')
         glut.glutDisplayFunc(self.display)
@@ -321,11 +321,11 @@ class PointCloudAppOpenGL:
         glut.glutMouseFunc(self.mouse)
         glut.glutMotionFunc(self.motion)
 
-        # Matrix to create a coordinate system with 
+        # Matrix to create a coordinate system with
         #  X right
         #  Y down
         #  Z forward
-        self.M = numpy.array( [ 
+        self.M = numpy.array( [
             [ 1.0,  0.0,  0.0, 0.0 ],
             [ 0.0, -1.0,  0.0, 0.0 ],
             [ 0.0,  0.0, -1.0, 0.0 ],
@@ -355,16 +355,16 @@ class PointCloudAppOpenGL:
         print 'Press space to reset view, ESC to quit.'
 
     def _watchdog(self, value):
-        # Used only to handle Ctrl-C 
+        # Used only to handle Ctrl-C
         glut.glutTimerFunc(100, self._watchdog, 0)
 
     def _ctrlC(self, signum, frame):
-        # Used only to handle Ctrl-C 
+        # Used only to handle Ctrl-C
         print 'Ctrl-C pressed, exiting.'
         sys.exit(0)
 
     def mouse(self, button, state, x, y):
-        if button == glut.GLUT_LEFT_BUTTON: 
+        if button == glut.GLUT_LEFT_BUTTON:
             # Left mouse button pressed/or released
             if state == glut.GLUT_DOWN:
                 # LMB pressed, set last known position
@@ -386,7 +386,7 @@ class PointCloudAppOpenGL:
 
         # Clear the screen
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-        
+
         # Set up the view matrix by rotating scene about mean z coordinate
         gl.glPushMatrix()
         gl.glTranslatef(0, 0, self.zmean)
@@ -399,7 +399,7 @@ class PointCloudAppOpenGL:
 
         # Restore view matrix
         gl.glPopMatrix()
-        
+
         # Tell GLUT to draw!
         glut.glutSwapBuffers()
 
@@ -421,7 +421,7 @@ class PointCloudAppOpenGL:
         gl.glMatrixMode(gl.GL_MODELVIEW)
         gl.glLoadIdentity()
         gl.glMultMatrixd(self.M)
-        
+
     def keyboard(self, key, x, y):
         # Keyboard pressed
         if (key == '\x1b'):
@@ -476,7 +476,7 @@ if __name__ == '__main__':
         print '  ' + os.path.basename(sys.argv[0]) + ' xyz.npz\n'
         print 'where the first argument is XYZ data in numpy npy or npz format.'
         print
-        
+
         # make a nice happy torus 5 meters away from the camera
 
         # equal spacing for X/Y from -2 to 2 meters
@@ -495,10 +495,10 @@ if __name__ == '__main__':
 
         # find the X/Y locations which are inside the torus
         mask = numpy.logical_and(d >= R1-R2, d <= R1+R2)
-        
+
         # compute the Z values for the torus
-        Z[mask] = 5 - numpy.sqrt( R2**2 - (d[mask] - R1)**2 ) 
-        
+        Z[mask] = 5 - numpy.sqrt( R2**2 - (d[mask] - R1)**2 )
+
         # fill in an XYZ array for ONLY the valid XY locations
         xyz = numpy.hstack( ( X[mask].reshape((-1,1)),
                               Y[mask].reshape((-1,1)),
@@ -506,7 +506,5 @@ if __name__ == '__main__':
 
     app = PointCloudApp(xyz, allow_opengl=allow_opengl)
 
-    
-    app.run()
 
-    
+    app.run()

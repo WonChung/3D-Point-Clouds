@@ -30,16 +30,24 @@ param_P1 = 0
 param_P2 = 20000
 
 # Create a stereo matcher object
-matcher = cv2.StereoSGBM_create(min_disparity, 
-                                max_disparity, 
-                                window_size, 
-                                param_P1, 
+matcher = cv2.StereoSGBM_create(min_disparity,
+                                max_disparity,
+                                window_size,
+                                param_P1,
                                 param_P2)
 
 # Compute a disparity image. The actual disparity image is in
 # fixed-point format and needs to be divided by 16 to convert to
 # actual disparities.
 disparity = matcher.compute(cam_image, proj_image) / 16.0
+
+# Create the calibration matrix K
+K = np.array([ [[600,0,320]], [[0,600,240]], [[0,0,1]] ], dtype = 'float32')
+
+K = np.matrix(K)
+inverseK = K.I
+
+
 
 # Pop up the disparity image.
 cv2.imshow('Disparity', disparity/disparity.max())
