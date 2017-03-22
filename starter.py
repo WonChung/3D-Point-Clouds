@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import cv2
-import numpy as np
+import numpy
 import sys
 import os
 
-from PointCloudApp import PointCloudApp
+from PointCloudApp import *
 
 # Get command line arguments or print usage and exit
 if len(sys.argv) > 2:
@@ -49,16 +49,56 @@ while cv2.waitKey(1) < 0: pass
 
 # Create the calibration matrix K
 K = numpy.array([ [[600,0,320]], [[0,600,240]], [[0,0,1]] ])
+print "This is K"
+print K
+print "\n"
 
 # Convert to float32
 K.astype(numpy.float32)
+print "This is K after converting to astype float32"
+print K
+print "\n"
 
 # Put into Matrix
 K = numpy.matrix(K)
+print "Matrix Form K"
+print K
+print "\n"
 
 # Get K Inverse
 K_Inverse = K.I
+print "K Inverse"
+print K_Inverse
+print "\n"
 
+# Height and Width from Disparity
 height, width = disparity.shape
+
+# Domain and Range
 Domain = numpy.linspace(0, width-1, width)
 Range = numpy.linspace(0, height-1, height)
+
+# Meshgrid
+X, Y = numpy.meshgrid(Domain, Range)
+Z = numpy.copy(X)
+
+# Stereo Baseline
+b = 0.05
+
+# Set Zmax
+Zmax = 8
+
+mask = numpy.logical_not(disparity < (b*600)/Zmax)
+
+Z[mask] = (.05*600)/disparity[mask]
+
+# Normalize
+X = Z*(X-320)/600
+Y = Z*(Y-240)/600
+
+# Stack
+stack = numpy.hstack((X[mask].reshape((-1,1)),Y[mask].reshape((-1,1)),Z[mask].reshape((-1,1))))
+
+# Create Cloud
+cloud = PointCloudApp(stack)
+cloud.run()
