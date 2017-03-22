@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 import cv2
-import numpy
+import numpy as np
 import sys
 import os
+
+from PointCloudApp import PointCloudApp
 
 # Get command line arguments or print usage and exit
 if len(sys.argv) > 2:
@@ -41,14 +43,22 @@ matcher = cv2.StereoSGBM_create(min_disparity,
 # actual disparities.
 disparity = matcher.compute(cam_image, proj_image) / 16.0
 
-# Create the calibration matrix K
-K = np.array([ [[600,0,320]], [[0,600,240]], [[0,0,1]] ], dtype = 'float32')
-
-K = np.matrix(K)
-inverseK = K.I
-
-
-
 # Pop up the disparity image.
 cv2.imshow('Disparity', disparity/disparity.max())
-while cv2.waitKey(5) < 0: pass
+while cv2.waitKey(1) < 0: pass
+
+# Create the calibration matrix K
+K = numpy.array([ [[600,0,320]], [[0,600,240]], [[0,0,1]] ])
+
+# Convert to float32
+K.astype(numpy.float32)
+
+# Put into Matrix
+K = numpy.matrix(K)
+
+# Get K Inverse
+K_Inverse = K.I
+
+height, width = disparity.shape
+Domain = numpy.linspace(0, width-1, width)
+Range = numpy.linspace(0, height-1, height)
