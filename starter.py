@@ -28,7 +28,7 @@ assert(proj_image.shape == cam_image.shape)
 min_disparity = 0
 max_disparity = 16
 # window_size = 11
-window_size = 9
+window_size = 15
 
 param_P1 = 0
 param_P2 = 20000
@@ -68,6 +68,8 @@ while cv2.waitKey(1) < 0: pass
 # print "\n"
 
 # Ignore K Stuff. Don't need.
+
+### Linear Equation Form ###
 
 # Height and Width from Disparity
 height, width = disparity.shape
